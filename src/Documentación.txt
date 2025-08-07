@@ -1,0 +1,309 @@
+Organización de archivos y guia de proyecto invervisa
+
+Estructura de carpetas 
+
+src/
+│
+├── modules/
+│   ├── auth/               -> Login, registro, JWT
+│   ├── users/              -> CRUD y roles
+│   ├── products/           -> Medicamentos
+│   ├── categories/
+│   ├── orders/
+│   ├── order-items/
+│   ├── addresses/
+│   ├── cart/
+│
+├── common/                
+│   ├── guards/
+│   ├── interceptors/
+│   ├── decorators/
+│   ├── dtos/
+│   └── utils/
+│
+├── config/                -> Configuración de DB, .env
+│   ├── typeorm.config.ts
+│
+├── database/             
+│   ├── migrations/
+│   └── seeds/
+│
+├── app.module.ts
+└── main.ts
+
+
+1. Registro y Login
+Frontend hace:
+
+- POST /auth/register → Enviar nombre, email, contraseña.
+- POST /auth/login → Enviar email, contraseña.
+
+Backend responde:
+
+- Registra usuario (con role: customer) y devuelve token JWT.
+- Login devuelve token + perfil básico.
+
+2. Ver productos y categorías
+Frontend hace:
+
+- GET /products → Lista con paginación y búsqueda.
+- GET /products/:id → Detalles de un medicamento.
+- GET /categories → Listado de categorías.
+
+Backend responde:
+
+- Productos filtrados (por nombre, categoría).
+- Info detallada: nombre, descripción, si requiere receta, stock, precio.
+
+3. Carrito de Compras 
+Frontend hace:
+
+- GET /cart → Ver productos en el carrito.
+- POST /cart → Agregar producto al carrito.
+- PATCH /cart/:id → Cambiar cantidad.
+- DELETE /cart/:id → Quitar producto.
+
+Backend responde:
+
+- Lista de productos en carrito.
+- Cálculo del total en tiempo real.
+
+4. Checkout y Órdenes
+Frontend hace:
+
+- POST /orders → Enviar cart, dirección, método de pago.
+- GET /orders → Ver historial.
+- GET /orders/:id → Ver estado de orden.
+
+Backend responde:
+
+- Crea orden con items, descuenta stock, guarda total.
+- Verifica si el producto necesita receta.
+- Devuelve estado: pendiente, enviado, entregado, cancelado.
+
+5. Perfil del Usuario
+Frontend hace:
+
+- GET /users/me → Ver datos personales.
+- PATCH /users/me → Editar nombre, dirección, etc.
+- GET /addresses → Lista de direcciones.
+- POST /addresses → Nueva dirección.
+
+6. Admin Panel 
+Endpoints internos para admin:
+
+- GET /admin/orders → Todas las órdenes.
+- PATCH /orders/:id → Cambiar estado.
+- POST /products → Crear nuevo medicamento.
+- PATCH /products/:id → Editar.
+- DELETE /products/:id → Eliminar.
+
+???
+
+
+### 🔸 `POST /auth/register`
+
+* Descripción: Registrar un nuevo usuario
+* Acceso: Público
+* Body:
+
+```json
+{
+  "name": "Juan Pérez",
+  "email": "juan@email.com",
+  "password": "123456"
+}
+```
+### 🔸 `POST /auth/login`
+
+* Descripción: Iniciar sesión
+* Acceso: Público
+* Body:
+```json
+{
+  "email": "juan@email.com",
+  "password": "123456"
+}
+```
+
+* Respuesta:
+```json
+{
+  "access_token": "JWT_TOKEN",
+  "user": {
+    "id": "...",
+    "name": "...",
+    "email": "...",
+    "role": "customer"
+  }
+}
+```
+## 👤 Usuarios
+### 🔸 `GET /users/me`
+
+* Descripción: Obtener el perfil del usuario autenticado
+* Acceso: Autenticado
+* Headers:
+  `Authorization: Bearer JWT_TOKEN`
+
+## 📦 Productos
+### 🔸 `GET /products`
+
+* Descripción: Listar todos los productos
+* Acceso: Público
+
+### 🔸 `GET /products/:id`
+* Descripción: Ver detalle de un producto por ID
+* Acceso: Público
+
+### 🔸 `POST /products`
+* Descripción: Crear un nuevo producto
+* Acceso: Solo `admin`
+* Headers:
+  `Authorization: Bearer JWT_TOKEN`
+* Body:
+
+```json
+{
+  "name": "Acetaminofén",
+  "description": "Analgésico",
+  "price": 1200,
+  "stock": 200,
+  "categoryId": "uuid-de-la-categoria",
+  "imageUrl": "https://..."
+}
+```
+
+### 🔸 `PATCH /products/:id`
+* Descripción: Actualizar un producto
+* Acceso: Solo `admin`
+
+### 🔸 `DELETE /products/:id`
+* Descripción: Eliminar un producto
+* Acceso: Solo `admin`
+
+## 🗂️ Categorías
+### 🔸 `GET /categories`
+* Descripción: Listar todas las categorías
+* Acceso: Público
+
+### 🔸 `GET /categories/:id`
+
+* Descripción: Ver detalle de una categoría
+* Acceso: Público
+
+### 🔸 `POST /categories`
+* Descripción: Crear nueva categoría
+* Acceso: Solo `admin`
+* Body:
+
+```json
+{
+  "name": "Analgésicos",
+  "description": "Productos para dolor"
+}
+```
+### 🔸 `PATCH /categories/:id`
+* Descripción: Editar una categoría
+* Acceso: Solo `admin`
+
+### 🔸 `DELETE /categories/:id`
+* Descripción: Eliminar una categoría
+* Acceso: Solo `admin`
+
+## 📥 Carrito
+
+### 🔸 `GET /cart`
+* Descripción: Ver productos en el carrito del usuario
+* Acceso: Autenticado
+
+### 🔸 `POST /cart`
+* Descripción: Agregar producto al carrito
+* Acceso: Autenticado
+* Body:
+```json
+{
+  "productId": "uuid-del-producto",
+  "quantity": 2
+}
+```
+### 🔸 `PATCH /cart/:id`
+* Descripción: Cambiar la cantidad de un producto en el carrito
+* Acceso: Autenticado
+* Body:
+```json
+{
+  "quantity": 5
+}
+```
+### 🔸 `DELETE /cart/:id`
+* Descripción: Quitar producto específico del carrito
+* Acceso: Autenticado
+
+### 🔸 `DELETE /cart`
+* Descripción: Vaciar completamente el carrito
+* Acceso: Autenticado
+
+## 🚚 Direcciones
+### 🔸 `GET /addresses`
+* Descripción: Ver todas las direcciones del usuario
+* Acceso: Autenticado
+
+### 🔸 `POST /addresses`
+* Descripción: Crear nueva dirección
+* Acceso: Autenticado
+* Body:
+
+```json
+{
+  "street": "Calle 123",
+  "city": "Bogotá",
+  "state": "Cundinamarca",
+  "zipCode": "110111",
+  "isDefault": true
+}
+```
+
+### 🔸 `PATCH /addresses/:id`
+* Descripción: Editar una dirección del usuario
+* Acceso: Autenticado
+
+### 🔸 `DELETE /addresses/:id`
+* Descripción: Eliminar dirección del usuario
+* Acceso: Autenticado
+
+## 📑 Órdenes
+### 🔸 `POST /orders/from-cart`
+* Descripción: Crear una orden desde el carrito
+* Acceso: Autenticado
+* Body:
+```json
+{
+  "addressId": "uuid-de-la-direccion"
+}
+```
+### 🔸 `GET /orders/my`
+* Descripción: Ver las órdenes del usuario actual
+* Acceso: Autenticado
+
+### 🔸 `GET /orders`
+* Descripción: Ver todas las órdenes (admin)
+* Acceso: Solo `admin`
+
+### 🔸 `PATCH /orders/:id/status`
+* Descripción: Cambiar estado de la orden (`pending`, `paid`, `shipped`, etc.)
+* Acceso: Solo `admin`
+* Body:
+
+```json
+{
+  "status": "shipped"
+}
+```
+
+## 🔐 Autenticación y Seguridad
+* Para todas las rutas protegidas, debes enviar el token en el header:
+
+```
+Authorization: Bearer JWT_TOKEN
+```
