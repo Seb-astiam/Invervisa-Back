@@ -4,8 +4,13 @@ import { RolesGuard } from './common/guards/roles.guard';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const reflector = app.get(Reflector);
-  app.useGlobalGuards(new RolesGuard(reflector));
+  // const reflector = app.get(Reflector);
+  // app.useGlobalGuards(new RolesGuard(reflector));
+
+  app.enableCors({
+    origin: '*', // o '*', si solo estás desarrollando
+    credentials: true // si estás enviando cookies o headers con autorización
+  });
   
 
   await app.listen(3000);
