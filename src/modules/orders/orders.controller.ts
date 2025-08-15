@@ -13,6 +13,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { RolesGuard } from 'src/common/guards/roles.guard';
+import { AuthUser } from '../users/dto/create-user.dto';
 
 @Controller('orders')
 export class OrdersController {
@@ -20,14 +21,14 @@ export class OrdersController {
 
   @UseGuards(AuthGuard('jwt'))
   @Post('from-cart')
-  createFromCart(@CurrentUser() user: any, @Body() dto: CreateOrderFromCartDto) {
-    return this.ordersService.createFromCart(user.i, dto.addressId);
+  createFromCart(@CurrentUser() user: AuthUser, @Body() dto: CreateOrderFromCartDto) {
+    return this.ordersService.createFromCart(user.id, dto.addressId);
   }
 
 
   @UseGuards(AuthGuard('jwt'))
   @Get('my')
-  getMyOrders(@CurrentUser() user: any) {
+  getMyOrders(@CurrentUser() user: AuthUser) {
     return this.ordersService.findUserOrders(user.id);
   }
 

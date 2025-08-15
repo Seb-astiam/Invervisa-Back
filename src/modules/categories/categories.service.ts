@@ -18,7 +18,7 @@ export class CategoriesService {
   }
 
   async findAll() {
-    return this.categoryRepository.find({ relations: ['products'] });
+    return await this.categoryRepository.find({ relations: ['products'] });
   }
 
   async findOne(id: string) {

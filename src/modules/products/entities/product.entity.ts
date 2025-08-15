@@ -1,5 +1,5 @@
 // src/modules/products/entities/product.entity.ts
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn, JoinColumn } from 'typeorm';
 import { Category } from 'src/modules/categories/entities/category.entity';
 
 @Entity()
@@ -19,10 +19,19 @@ export class Product {
   @Column()
   stock: number;
 
+  @Column({ default: 0 })
+  discount?: number;
+
+  @Column({ default: 'nn'})
+  brand: string; 
+
   @Column({ nullable: true })
   imageUrl: string;
 
-  @ManyToOne(() => Category, category => category.products)
+  @Column() categoryId: string;
+
+  @ManyToOne(() => Category, (category) => category.products)
+  @JoinColumn({ name: 'categoryId' })
   category: Category;
 
   @CreateDateColumn()

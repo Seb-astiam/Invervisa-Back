@@ -18,7 +18,7 @@ export class AddressesService {
   
 
   async findByUser ( userId: string) {
-    return this.addressRepository.find({ where: { userId }});
+    return await this.addressRepository.find({ where: { userId }});
   }
 
   async create(userId: string, createAddressDto: CreateAddressDto) {

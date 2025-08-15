@@ -3,6 +3,8 @@ export class CreateProductDto {
     description: string;
     price: number;
     stock: number;
+    discount?: number;
+    brand: string;
     imageUrl?: string;
-    categoryId: number;
+    categoryId: string;
 }

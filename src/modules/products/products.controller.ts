@@ -7,7 +7,8 @@ import {
   Param, 
   Delete,
   UseGuards,
-  ParseIntPipe
+  ParseIntPipe,
+  HttpCode
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -27,6 +28,12 @@ export class ProductsController {
     return this.productsService.create(createProductDto);
   }
 
+  @Post('bulk') 
+  @HttpCode(201)
+  bulkCreate(@Body() body: any[]) {
+    return this.productsService.bulkCreate(body);
+  }
+
   @Get()
   findAll() {
     return this.productsService.findAll();
@@ -41,6 +48,7 @@ export class ProductsController {
   @Roles('admin')
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
+    console.log(updateProductDto, 'revisando data')
     return this.productsService.update(id, updateProductDto);
   }
 

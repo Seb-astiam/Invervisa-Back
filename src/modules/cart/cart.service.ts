@@ -17,14 +17,14 @@ export class CartService {
       where: { userId },
       relations: ['product'],
     });
-  }
+  } 
 
   async addToCart(userId: string, dto: CreateCartDto) {
     const existing = await this.cartRepository.findOne({
       where: { userId, productId: dto.productId },
     });
 
-    if (existing) {
+    if (existing) { 
       existing.quantity += dto.quantity;
       return this.cartRepository.save(existing);
     }

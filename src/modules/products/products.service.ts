@@ -13,6 +13,25 @@ export class ProductsService {
     private productRepository: Repository<Product>
   ) {}
 
+  async bulkCreate(items: CreateProductDto[]) { 
+    if(!Array.isArray(items) || items.length === 0) return [];
+
+    const rows = items.map((it) => 
+      { return this.productRepository.create({
+        name: it.name,
+        description: it.description,
+        price: Number(it.price ?? 0),
+        stock: Number(it.stock ?? 0),
+        discount: Number(it.discount ?? 0),
+        brand: it.brand ?? 'nn',
+        imageUrl: it.imageUrl ?? null,
+        category: { id: it.categoryId } as any
+      })}
+    );
+
+    return await this.productRepository.save(rows);
+  }
+
   async create(createProductDto: CreateProductDto) {
     const product = this.productRepository.create(createProductDto);
     return this.productRepository.save(product);
