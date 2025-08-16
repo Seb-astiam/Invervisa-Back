@@ -33,6 +33,7 @@ export class UsersService {
       throw new NotFoundException('Usuario no encontrado')
     }
 
+    console.log(user)
     return user
   }
 

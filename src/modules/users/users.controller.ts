@@ -3,6 +3,8 @@ import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { AuthUser, CreateUserDto } from './dto/create-user.dto';
+import { RolesGuard } from 'src/common/guards/roles.guard';
+import { Roles } from 'src/common/decorators/roles.decorator';
 
 @Controller('users')
 export class UsersController {
@@ -25,8 +27,12 @@ export class UsersController {
   }
 
   @Get()
-  findOne(@CurrentUser() user) {
-    return this.usersService.findOne(user.id);
+
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('admin')
+  findOne(userId: string) {
+    return this.usersService.findOne(userId);
   }
 
   // @Patch(':id')
