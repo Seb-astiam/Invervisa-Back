@@ -8,16 +8,16 @@ import { UpdateProductDto } from './dto/update-product.dto';
 @Injectable()
 export class ProductsService {
 
-  constructor (
+  constructor(
     @InjectRepository(Product)
     private productRepository: Repository<Product>
-  ) {}
+  ) { }
 
-  async bulkCreate(items: CreateProductDto[]) { 
-    if(!Array.isArray(items) || items.length === 0) return [];
+  async bulkCreate(items: CreateProductDto[]) {
+    if (!Array.isArray(items) || items.length === 0) return [];
 
-    const rows = items.map((it) => 
-      { return this.productRepository.create({
+    const rows = items.map((it) => {
+      return this.productRepository.create({
         name: it.name,
         description: it.description,
         price: Number(it.price ?? 0),
@@ -26,10 +26,17 @@ export class ProductsService {
         brand: it.brand ?? 'nn',
         imageUrl: it.imageUrl ?? null,
         category: { id: it.categoryId } as any
-      })}
+      })
+    }
     );
 
-    return await this.productRepository.save(rows);
+    const CHUNK = 200;
+    const created: CreateProductDto[] = [];
+    for (let i = 0; i < rows.length; i += CHUNK) {
+      const slice = rows.slice(i, i + CHUNK);
+      created.push(...await this.productRepository.save(slice));
+    }
+    return created;
   }
 
   async create(createProductDto: CreateProductDto) {
@@ -46,7 +53,7 @@ export class ProductsService {
       where: { id },
       relations: ['category'],
     });
-    if (!product) throw new NotFoundException('Producto no encontrado'); 
+    if (!product) throw new NotFoundException('Producto no encontrado');
     return product;
   }
 
@@ -57,6 +64,6 @@ export class ProductsService {
 
   async remove(id: number) {
     await this.productRepository.delete(id);
-    return { message: 'producto eliminado'};
+    return { message: 'producto eliminado' };
   }
 }
