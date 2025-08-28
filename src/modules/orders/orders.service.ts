@@ -21,6 +21,15 @@ export class OrdersService {
     private cartService: CartService,
     private readonly addressesService: AddressesService,
   ) { }
+    
+
+  applyDiscount(base: number, discount?: number) {
+    const d = Number(discount ?? 0);
+    const p = Number(base ?? 0);
+    if (d <= 0) return Number(p.toFixed(2));
+    const val = p * (1 - d / 100);
+    return Number(val.toFixed(2));
+  }
 
   async createFromCart(userId: string, addressId: string) {
     const address = await this.addressesService.findOne(addressId, userId);
@@ -43,14 +52,19 @@ export class OrdersService {
         throw new BadRequestException(`Stock insuficiente para ${product.name}`);
       }
 
+      const unitPrice = this.applyDiscount(product.price, product.discount ?? 0)
+      console.log(unitPrice, 'ver')
+
       const orderItem = this.itemRepository.create({
         productId: product.id,
         quantity: cartItem.quantity,
-        priceAtPurchase: product.price,
+        priceAtPurchase: unitPrice,
+        basePrice: Number(product.price),
+        discountApplied: Number(product.discount ?? 0),
       });
 
       items.push(orderItem);
-      total += Number(product.price) * cartItem.quantity;
+      total += unitPrice * cartItem.quantity;
 
       product.stock -= cartItem.quantity;
       await this.productsService.update(product.id, product);
@@ -59,7 +73,7 @@ export class OrdersService {
     const order = this.orderRepository.create({
       userId,
       addressId,
-      totalPrice: total,
+      totalPrice: Number(total.toFixed(2)),
       items,
     });
 
@@ -92,5 +106,22 @@ export class OrdersService {
     return this.orderRepository.save(order);
   }
 
+  async findOneForUser(orderId: string, userId: string) {
+
+    return this.orderRepository.findOne({
+      where: { id: orderId, userId },
+      relations: ['items', 'items.product', 'address'],
+    });
+  }
+
+  async findOneAdmin(orderId: string) {
+
+    return this.orderRepository.findOne({
+      where: { id: orderId },
+      relations: ['user', 'items', 'items.product', 'address'],
+    });
+  }
+
+  
 
 }

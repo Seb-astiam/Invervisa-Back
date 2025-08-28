@@ -20,6 +20,12 @@ export class OrderItem {
   @Column()
   productId: string;
 
+  @Column('decimal', { precision: 10, scale: 2, nullable: true })
+  basePrice?: number;          
+  
+  @Column({ type: 'int', nullable: true })
+  discountApplied?: number;
+
   @Column()
   quantity: number;
 

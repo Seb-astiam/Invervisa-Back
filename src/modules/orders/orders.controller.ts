@@ -5,7 +5,8 @@ import {
   Body,
   Patch,
   Param,
-  UseGuards
+  UseGuards,
+  NotFoundException
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderFromCartDto } from './dto/create-order.dto';
@@ -16,6 +17,7 @@ import { RolesGuard } from 'src/common/guards/roles.guard';
 import { AuthUser } from '../users/dto/create-user.dto';
 
 @Controller('orders')
+@UseGuards(AuthGuard('jwt'))
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) { }
 
@@ -44,6 +46,20 @@ export class OrdersController {
   @Patch(':id/status')
   updateStatus(@Param('id') id: string, @Body('status') status: string) {
     return this.ordersService.updateStatus(id, status);
+  }
+
+  @Get(':id')
+  async getById(@CurrentUser() user: AuthUser, @Param('id') orderId: string) {
+
+    if (user?.role === 'admin') {
+      const o = await this.ordersService.findOneAdmin(orderId);
+      if (!o) throw new NotFoundException('Orden no encontrada');
+      return o;
+    }
+
+    const o = await this.ordersService.findOneForUser(orderId, user.id);
+    if (!o) throw new NotFoundException('Orden no encontrada');
+    return o;
   }
 
 }
