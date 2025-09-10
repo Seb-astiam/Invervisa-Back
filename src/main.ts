@@ -11,7 +11,13 @@ async function bootstrap() {
     origin:[ 'https://invervisa.vercel.app', 'http://localhost:4200' ], // o '*', si solo estás desarrollando
     credentials: true, // si estás enviando cookies o headers con autorización
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    allowedHeaders: 'Authorization'
+    allowedHeaders: [
+      'Content-Type',        
+      'Authorization',
+      'X-Requested-With',
+      'Accept',
+      'Origin'
+    ],
   });
 
   
