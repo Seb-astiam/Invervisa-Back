@@ -12,7 +12,7 @@ async function bootstrap() {
     credentials: true // si estás enviando cookies o headers con autorización
   });
   
-
-  await app.listen(3000);
+  const port = Number(process.env.PORT) || 3000;
+  await app.listen(port, '0.0.0.0');
 }
 bootstrap();
