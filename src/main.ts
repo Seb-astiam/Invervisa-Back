@@ -9,7 +9,9 @@ async function bootstrap() {
 
   app.enableCors({
     origin:[ 'invervisa-git-main-seb-astiams-projects.vercel.app', 'invervisa-afmd454tm-seb-astiams-projects.vercel.app', 'invervisa.vercel.app', 'http://localhost:4200' ], // o '*', si solo estás desarrollando
-    credentials: true // si estás enviando cookies o headers con autorización
+    credentials: true, // si estás enviando cookies o headers con autorización
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: 'Content-Type, Authorization'
   });
   
   const port = Number(process.env.PORT) || 3000;
