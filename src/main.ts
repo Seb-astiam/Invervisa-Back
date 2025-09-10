@@ -8,7 +8,7 @@ async function bootstrap() {
   // app.useGlobalGuards(new RolesGuard(reflector));
 
   app.enableCors({
-    origin:[ 'invervisa-git-main-seb-astiams-projects.vercel.app', 'invervisa-afmd454tm-seb-astiams-projects.vercel.app', 'invervisa.vercel.app', 'http://localhost:4200' ], // o '*', si solo estás desarrollando
+    origin:[ 'https://invervisa.vercel.app', 'http://localhost:4200' ], // o '*', si solo estás desarrollando
     credentials: true, // si estás enviando cookies o headers con autorización
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     allowedHeaders: 'Content-Type, Authorization'
