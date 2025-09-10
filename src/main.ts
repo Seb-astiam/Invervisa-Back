@@ -11,8 +11,9 @@ async function bootstrap() {
     origin:[ 'https://invervisa.vercel.app', 'http://localhost:4200' ], // o '*', si solo estás desarrollando
     credentials: true, // si estás enviando cookies o headers con autorización
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    allowedHeaders: 'Content-Type, Authorization'
+    allowedHeaders: 'Authorization'
   });
+
   
   const port = Number(process.env.PORT) || 3000;
   await app.listen(port, '0.0.0.0');
